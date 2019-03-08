@@ -69,7 +69,7 @@ export default {
       // console.log(e) // eslint-disable-line
     },
     onDragStart(e, item) {
-      console.log(e, item) // eslint-disable-line
+      // console.log(e, item) // eslint-disable-line
       window.element = item
       // e.dataTransfer.setData('element', JSON.stringify(item))
     }

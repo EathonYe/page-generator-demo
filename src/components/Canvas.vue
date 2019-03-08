@@ -1,17 +1,26 @@
 <template>
   <div ref="preview" class="preview" @dragenter="onDragEnter" @dragover="onDragOver" @drop="onDrop">
-    <component v-for="item in list" :key="item.id" :is="item.component || item.name" :list="item.list"></component>
+    <!-- <div class="placeholder inline"></div> -->
+    <component
+      v-for="item in components"
+      :key="item.id"
+      :is="item.component || item.name"
+      :list="item.list"
+      :data-id="item.id"
+    ></component>
   </div>
 </template>
 
 <script>
+import guid from '@/utils/guid'
+
 export default {
   name: 'Preview',
   components: {
   },
   data() {
     return {
-      list: [
+      components: [
       ]
     }
   },
@@ -27,54 +36,54 @@ export default {
         } = this.$refs.preview.getBoundingClientRect()
 
         if (e.clientX > left && e.clientX < right && e.clientY > top && e.clientY < bottom && !document.querySelector('#placeholder')) {
-          const placeholder = document.createElement('div')
-          placeholder.id = 'placeholder'
-          this.$refs.preview.appendChild(placeholder)
+          this.setPlaceholder()
         }
 
-            //鼠标在预览视图中的相对坐标
-            // console.log(e.clientX,e.clientY)
+
+        //鼠标在预览视图中的相对坐标
         // let preview = this.$refs.preview
         // let x = e.clientX - left,
         //     y = e.clientY - top + preview.scrollTop
-        // this.components.filter(component => !component.parentId).forEach(component => {
-        //     let {
-        //         offsetLeft,
-        //         offsetTop,
-        //         offsetRight,
-        //         offsetBottom
-        //     } = component.position
+        let x = e.clientX,
+            y = e.clientY
+        this.components.filter(component => !component.parentId).forEach(component => {
+            let {
+                left,
+                right,
+                top,
+                bottom
+            } = component.el.getBoundingClientRect()
 
-        //     let offset = 5
-        //         //不在当前元素位置内
-        //     if (!(x > offsetLeft && x < offsetRight && y > offsetTop && y < offsetBottom)) {
-        //         return
-        //     }
-        //     //上方
-        //     if (y > offsetTop && y < offsetTop + offset) {
-        //         this.setPlaceholder('上方', component)
-        //         return
-        //     }
-        //     //右方
-        //     if (x < offsetRight && x > offsetRight - offset) {
-        //         this.setPlaceholder('右方', component)
-        //         return
-        //     }
-        //     //下方
-        //     if (y < offsetBottom && y > offsetBottom - offset) {
-        //         this.setPlaceholder('下方', component)
-        //         return
-        //     }
-        //     //左方
-        //     if (x > offsetLeft && x < offsetLeft + offset) {
-        //         this.setPlaceholder('左方', component)
-        //         return
-        //     }
-        // })
+            let offset = 5
+                //不在当前元素位置内
+            if (!(x > left && x < right && y > top && y < bottom)) {
+                return
+            }
+            //上方
+            if (y > top && y < top + offset) {
+                this.setPlaceholder('top', component)
+                return
+            }
+            //右方
+            if (x < right && x > right - offset) {
+                this.setPlaceholder('right', component)
+                return
+            }
+            //下方
+            if (y < bottom && y > bottom - offset) {
+                this.setPlaceholder('bottom', component)
+                return
+            }
+            //左方
+            if (x > left && x < left + offset) {
+                this.setPlaceholder('left', component)
+                return
+            }
+        })
     }
 
     document.ondragend = () => {
-      document.querySelector('#placeholder').parentNode.removeChild(document.querySelector('#placeholder'))
+      this.removePlaceholder()
     }
   },
   methods: {
@@ -91,9 +100,45 @@ export default {
     },
     onDrop(e) {
       console.log(e) // eslint-disable-line
-      // document.querySelector('#placeholder').parentNode.removeChild(document.querySelector('#placeholder'))
-      // const element = JSON.parse(e.dataTransfer.getData('element'))
-      this.list.push(window.element)
+      this.removePlaceholder()
+      const element = Object.assign({}, window.element)
+      element.id = guid()
+      this.components.push(element)
+      window.element = null
+      this.$nextTick(() => {
+        element.el = this.$refs.preview.querySelector(`[data-id="${element.id}"]`)
+      })
+    },
+
+    setPlaceholder(position, component) {
+      const placeholder = document.querySelector('#placeholder') || document.createElement('div')
+      placeholder.id = 'placeholder'
+      placeholder.classList.remove('inline')
+      
+      if (!position) {
+        this.$refs.preview.appendChild(placeholder)
+      } else {
+        switch(position) {
+          case 'top':
+            component.el.parentNode.insertBefore(placeholder, component.el)
+            break
+          case 'bottom':
+            component.el.parentNode.insertBefore(placeholder, component.el.nextSibling)
+            break
+          case 'left':
+            placeholder.classList.add('inline')
+            component.el.parentNode.insertBefore(placeholder, component.el)
+            break
+          case 'right':
+            placeholder.classList.add('inline')
+            component.el.parentNode.insertBefore(placeholder, component.el.nextSibling)
+            break
+        }
+      }
+    },
+    removePlaceholder() {
+      const placeholder = document.querySelector('#placeholder')
+      placeholder && placeholder.parentNode.removeChild(placeholder)
     }
   },
 }
@@ -103,9 +148,17 @@ export default {
 .preview {
   height: 500px;
   border: 1px dashed #333;
+  text-align: left;
+  overflow: auto;
 }
-#placeholder {
+#placeholder, .placeholder {
   border: 1px dashed #333;
   height: 50px;
+
+  &.inline {
+    display: inline-flex;
+    width: 100px;
+    vertical-align: top;
+  }
 }
 </style>

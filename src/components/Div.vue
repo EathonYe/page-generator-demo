@@ -1,9 +1,9 @@
 <template>
-  <draggable group="component" v-model="list" class="div"></draggable>
+  <div class="div"></div>
 </template>
 
 <script>
-import draggable from 'vuedraggable'
+// import draggable from 'vuedraggable'
 
 export default {
   name: 'Div',
@@ -11,7 +11,7 @@ export default {
     list: Array
   },
   components: {
-    draggable
+    // draggable
   }
 }
 </script>
@@ -19,5 +19,6 @@ export default {
 <style lang="scss" scoped>
   .div {
     min-height: 100px;
+    border: 1px solid #333;
   }
 </style>
