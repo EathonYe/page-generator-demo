@@ -2,7 +2,7 @@
   <ul class="comp-list">
     <li v-for="item of list" :key="item.id">
       <p>{{item.name}}</p>
-      <component :is="item.component || item.name" draggable="true"></component>
+      <component :is="item.component || item.name" draggable="true" @dragstart.native="onDragStart($event, item)"></component>
     </li>
   </ul>
 </template>
@@ -67,6 +67,11 @@ export default {
     },
     handleEnd() {
       // console.log(e) // eslint-disable-line
+    },
+    onDragStart(e, item) {
+      console.log(e, item) // eslint-disable-line
+      window.element = item
+      // e.dataTransfer.setData('element', JSON.stringify(item))
     }
   }
 }

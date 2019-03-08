@@ -92,6 +92,8 @@ export default {
     onDrop(e) {
       console.log(e) // eslint-disable-line
       // document.querySelector('#placeholder').parentNode.removeChild(document.querySelector('#placeholder'))
+      // const element = JSON.parse(e.dataTransfer.getData('element'))
+      this.list.push(window.element)
     }
   },
 }
