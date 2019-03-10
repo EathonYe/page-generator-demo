@@ -1,5 +1,8 @@
 <template>
-  <div class="div"></div>
+  <div class="div">
+    <slot></slot>
+    <slot name="header"></slot>
+  </div>
 </template>
 
 <script>
@@ -8,7 +11,7 @@
 export default {
   name: 'Div',
   props: {
-    list: Array
+    // list: Array
   },
   components: {
     // draggable
