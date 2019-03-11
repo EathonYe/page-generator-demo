@@ -1,5 +1,5 @@
 <template>
-  <div ref="preview" class="preview" @dragenter="onDragEnter" @dragover="onDragOver" @drop="onDrop">
+  <div ref="preview" class="preview" @dragenter="onDragEnter" @dragover="onDragOver" @drop="onDrop" @click="clickPreview">
     <component
       v-for="item in components"
       :key="item.id"
@@ -27,7 +27,8 @@ export default {
       insertPos: {
         position: '',
         component: ''
-      }
+      },
+      selectedComp: {}
     }
   },
   mounted() {
@@ -249,12 +250,54 @@ export default {
       placeholder && placeholder.parentNode.removeChild(placeholder)
     },
 
+    getComponentNode(node) {
+      if (node && node.getAttribute('data-id') !== null)
+        return node
+      else {
+        if (node.parentElement)
+          return this.getComponentNode(node.parentElement)
+        else
+          return false
+      }
+
+    },
+    clickPreview(e) {
+      e.preventDefault()
+      let target = e.target
+
+      const selectedDOM = document.querySelector('#selected-dom') || document.createElement('div')
+      selectedDOM.id = 'selected-dom'
+      let componentHTML = this.getComponentNode(target)
+      if (componentHTML) {
+          //添加选中效果
+          const { left, top, width, height } = componentHTML.getBoundingClientRect()
+          selectedDOM.style.left = left - 2 + 'px';
+          selectedDOM.style.top = top - 2 + 'px';
+          selectedDOM.style.width = width + 4 + 'px';
+          selectedDOM.style.height = height + 4 + 'px';
+          document.body.appendChild(selectedDOM)
+
+          this.selectedComp = this.compList.find(comp => comp.id.toString() === componentHTML.getAttribute('data-id') )
+
+          //保存到vuex
+          // let currentId = componentHTML.id
+          // let component = this.components.find(component => component.info.id === currentId)
+          // if (component)
+          //     this.$store.commit('setState', {
+          //         currentComponent: component
+          //     })
+      } else {
+        selectedDOM.style.left = '-99999px'
+      }
+    }
+
   },
 }
 </script>
 
 <style lang="scss">
 .preview {
+  position: relative;
   height: 500px;
   padding: 10px;
   border: 1px dashed #333;
@@ -270,5 +313,11 @@ export default {
     width: 100px;
     vertical-align: top;
   }
+}
+
+#selected-dom {
+  box-sizing: border-box;
+  position: absolute;
+  border: 1px dashed #333;
 }
 </style>

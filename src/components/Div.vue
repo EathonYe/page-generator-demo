@@ -22,6 +22,6 @@ export default {
 <style lang="scss" scoped>
   .div {
     min-height: 100px;
-    border: 1px solid #333;
+    border: 1px solid #ccc;
   }
 </style>
