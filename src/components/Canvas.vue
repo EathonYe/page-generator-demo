@@ -117,17 +117,19 @@ export default {
           }
         }
 
-        // const child = this.$createElement(element.component || element.name)
         const parentInstance = this.$refs[parentComp.id][0]
-        parentInstance.$slots.default = children.map(child => this.$createElement(child.component || child.name, {
-          attrs: {
-            'data-id': child.id
-          },
-          ref: child.id,
-          refInFor: true
-        }))
-        // parentInstance.$slots.default.push(child)
-        parentInstance.$mount()
+        // parentInstance.$slots.default = children.map(child =>
+        //   this.$createElement(child.component || child.name, {
+        //     attrs: {
+        //       'data-id': child.id
+        //     },
+        //     ref: child.id,
+        //     refInFor: true
+        //   })
+        // )
+        // parentInstance.$mount()
+        parentInstance.children = children
+        parentInstance.$forceUpdate()
       } else { // 最外层
         const index = this.components.findIndex(comp => comp.id === (this.insertPos.component || {}).id)
         console.log('outer', index, this.insertPos.position)
